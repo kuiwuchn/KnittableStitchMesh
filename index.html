@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Knittable Stitch Meshes</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="stylesheet" href="ksm-core/main.css">
+</head>
+
+<body>
+
+<div id="info">
+	<h1>Knittable Stitch Meshes</h1>
+	<h3>Teapot Tiny</h3>
+</div>
+
+<div id="instr0">
+</div>
+<div id="instr1">
+</div>
+<div id="instr2">
+</div>
+<div id="instr3">
+</div>
+<div id="instr4">
+</div>
+<div id="instr5">
+</div>
+<div id="instr6">
+</div>
+
+<div id="copyright">
+	©Copyright by <a href="http://people.csail.mit.edu/kuiwu/">Kui Wu</a>. All rights reserved.
+</div>
+
+<script src="ksm-core/three.js"></script>
+<script src="ksm-core/dat.gui.min.js"></script>
+<script src="ksm-core/detector.js"></script>
+<script src="ksm-core/trackball-controls.js"></script>
+<script src="ksm-core/vector.js"></script>
+<script src="ksm-core/emscripten-memory-manager.js"></script>
+<script src="ksm-core/vertex.js"></script>
+<script src="ksm-core/edge.js"></script>
+<script src="ksm-core/face.js"></script>
+<script src="ksm-core/halfedge.js"></script>
+<script src="ksm-core/corner.js"></script>
+<script src="ksm-core/mesh.js"></script>
+<script src="ksm-core/geometry.js"></script>
+<script src="input/teapot_tiny.js"></script>
+<script src="input/teapot_tiny_order.js"></script>
+<script src="ksm-core/meshio.js"></script>
+
+<script>
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+	let input = document.getElementById("fileInput");
+	let renderer = undefined;
+	let camera = undefined;
+	let controls = undefined;
+	let showWireframe = true;
+	let shiftClick = false;
+	let scene = undefined;
+	let threeMesh = undefined;
+	let threeMeshCurrent = undefined;
+	let threeGeometry = undefined;
+	let threeGeometryCurrent = undefined;
+	let wireframe = undefined;
+	let threeMaterial = undefined;
+	let positions = undefined;
+	let normals = undefined;
+	let colors = undefined;
+	let colorsCurrent = undefined;
+	let indices = undefined;
+	let indicesCurrent = undefined;
+
+	let memoryManager = new EmscriptenMemoryManager();
+	let mesh = undefined;
+	let geometry = undefined;
+
+	let types = undefined;
+
+	let faceIdPrefixsum = undefined;
+	let currentInstId = 0;
+
+	var obj = {
+		Step: currentInstId,
+	};
+
+	let stepListener = undefined;
+
+	let metaElement = undefined;
+	let instrElement0 = undefined;
+	let instrElement1 = undefined;
+	let instrElement2 = undefined;
+	let instrElement3 = undefined;
+	let instrElement4 = undefined;
+	let instrElement5 = undefined;
+	let instrElement6 = undefined;
+
+	//const ORANGE = new Vector(1.0, 0.5, 0.0);
+	const GREY = new Vector(0.688, 0.688, 0.688);
+	const GREEN = new Vector(0.3, 0.6, 0.3);
+	const YELLOW = new Vector(1.0, 1.0, 0.0);
+	const BLUE = new Vector(0.1, 0.4, 0.8);
+	const RED = new Vector(0.5, 0.1, 0.1);
+	const DARKGREY = new Vector(0.344, 0.344, 0.344);
+	const DARKRED = new Vector(1.0, 0.1, 0.1);
+
+	let guiFields = {
+		"Load Mesh": function() {
+			input.click();
+		},
+		"Reset": function() {
+
+		},
+		"Next": function() {
+
+			if (currentInstId == 0) {
+				let currentIndicesCurrent = indices.slice(0, faceIdPrefixsum[currentInstId]);
+				threeGeometryCurrent.setIndex(new THREE.BufferAttribute(currentIndicesCurrent, 1));
+
+				let currentIndices = indices.slice(0, 0);
+				threeGeometry.setIndex(new THREE.BufferAttribute(currentIndices, 1));
+			}
+			else if (currentInstId > 0) {
+				let currentIndicesCurrent = indices.slice(faceIdPrefixsum[currentInstId - 1], faceIdPrefixsum[currentInstId]);
+				threeGeometryCurrent.setIndex(new THREE.BufferAttribute(currentIndicesCurrent, 1));
+
+				let currentIndices = indices.slice(0, faceIdPrefixsum[currentInstId - 1]);
+				threeGeometry.setIndex(new THREE.BufferAttribute(currentIndices, 1));
+			}
+
+			let vi = faceIdPrefixsum[currentInstId];
+			let px = positions[vi * 3 + 0];
+			let py = positions[vi * 3 + 1];
+			let pz = positions[vi * 3 + 2];
+
+			if (currentInstId > 2)
+				instrElement6.textContent = instructions[currentInstId - 3];
+			else
+				instrElement6.textContent = " ";
+			if (currentInstId > 1)
+				instrElement5.textContent = instructions[currentInstId - 2];
+			else
+				instrElement5.textContent = " ";
+			if (currentInstId > 0)
+				instrElement4.textContent = instructions[currentInstId - 1];
+			else
+				instrElement4.textContent = " ";
+			instrElement3.textContent = instructions[currentInstId - 0];
+			if (currentInstId < faceIdPrefixsum.length - 2)
+				instrElement2.textContent = instructions[currentInstId + 1];
+			else
+				instrElement2.textContent = " ";
+			if (currentInstId < faceIdPrefixsum.length - 3)
+				instrElement1.textContent = instructions[currentInstId + 2];
+			else
+				instrElement1.textContent = " ";
+			if (currentInstId < faceIdPrefixsum.length - 4)
+				instrElement0.textContent = instructions[currentInstId + 3];
+			else
+				instrElement0.textContent = " ";
+
+			stepListener.object.Step = currentInstId;
+			stepListener.updateDisplay();
+
+			currentInstId++;
+		},
+		"Show Wireframe": showWireframe
+	};
+
+	init();
+	animate();
+
+	function init() {
+		let container = document.createElement("div");
+		document.body.appendChild(container);
+
+		initRenderer(container);
+		initGUI();
+		initCamera();
+		initScene();
+		initLights();
+		initMesh(teapot_tiny);
+		initControls();
+		addEventListeners();
+	}
+
+	function initRenderer(container) {
+		renderer = new THREE.WebGLRenderer({
+			antialias: true
+		});
+		renderer.setPixelRatio(window.devicePixelRatio);
+		renderer.setClearColor(0xffffff, 1.0);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		container.appendChild(renderer.domElement);
+	}
+
+	function initGUI() {
+		let gui = new dat.GUI( { fontSize: 20  } );
+		console.log(gui);
+		stepListener = gui.add(obj, 'Step').min(0).max(instructions.length - 2).step(1);
+
+		gui.add(guiFields, "Next");
+		gui.add(guiFields, "Show Wireframe").onChange(toggleWireframe).listen();
+	}
+
+	window.onload = function() {
+
+	}
+
+	stepListener.onChange(
+			function(newStep) {
+				currentInstId = newStep;
+				if (currentInstId == 0) {
+					let currentIndicesCurrent = indices.slice(0, faceIdPrefixsum[currentInstId]);
+					threeGeometryCurrent.setIndex(new THREE.BufferAttribute(currentIndicesCurrent, 1));
+
+					let currentIndices = indices.slice(0, 0);
+					threeGeometry.setIndex(new THREE.BufferAttribute(currentIndices, 1));
+				}
+				else if (currentInstId > 0) {
+					let currentIndicesCurrent = indices.slice(faceIdPrefixsum[currentInstId - 1], faceIdPrefixsum[currentInstId]);
+					threeGeometryCurrent.setIndex(new THREE.BufferAttribute(currentIndicesCurrent, 1));
+
+					let currentIndices = indices.slice(0, faceIdPrefixsum[currentInstId - 1]);
+					threeGeometry.setIndex(new THREE.BufferAttribute(currentIndices, 1));
+				}
+
+				if (currentInstId > 2)
+					instrElement6.textContent = instructions[currentInstId - 3];
+				else
+					instrElement6.textContent = " ";
+				if (currentInstId > 1)
+					instrElement5.textContent = instructions[currentInstId - 2];
+				else
+					instrElement5.textContent = " ";
+				if (currentInstId > 0)
+					instrElement4.textContent = instructions[currentInstId - 1];
+				else
+					instrElement4.textContent = " ";
+				instrElement3.textContent = instructions[currentInstId - 0];
+				if (currentInstId < faceIdPrefixsum.length - 2)
+					instrElement2.textContent = instructions[currentInstId + 1];
+				else
+					instrElement2.textContent = " ";
+				if (currentInstId < faceIdPrefixsum.length - 3)
+					instrElement1.textContent = instructions[currentInstId + 2];
+				else
+					instrElement1.textContent = " ";
+				if (currentInstId < faceIdPrefixsum.length - 4)
+					instrElement0.textContent = instructions[currentInstId + 3];
+				else
+					instrElement0.textContent = " ";
+				currentInstId++;
+			});
+
+	function toggleWireframe(checked) {
+		showWireframe = checked;
+		if (showWireframe) threeMesh.add(wireframe);
+		else threeMesh.remove(wireframe);
+	}
+
+	function initCamera() {
+		const fov = 45.0;
+		const aspect = window.innerWidth / window.innerHeight;
+		const near = 0.1;
+		const far = 1000;
+		const eyeZ = 3.5;
+
+		camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+		camera.position.z = eyeZ;
+	}
+
+	function initScene() {
+		scene = new THREE.Scene();
+		scene.background = new THREE.Color(0xffffff);
+	}
+
+	function initLights() {
+		let ambient = new THREE.AmbientLight(0xffffff, 0.35);
+		camera.add(ambient);
+
+		let point = new THREE.PointLight(0xffffff);
+		point.position.set(2, 20, 15);
+		camera.add(point);
+
+		scene.add(camera);
+	}
+
+	function initMesh(text) {
+		let polygonSoup = MeshIO.readOBJ(text);
+		types = polygonSoup.t;
+		mesh = new Mesh();
+		if (mesh.build(polygonSoup)) {
+			// remove any previously loaded mesh from scene
+			scene.remove(threeMesh);
+			scene.remove(threeMeshCurrent);
+			memoryManager.deleteExcept([]);
+			delta = undefined;
+
+			// create geometry object
+			geometry = new Geometry(mesh, polygonSoup["v"]);
+
+			// create a THREE.js mesh (and geometry) object
+			initThreeMesh();
+			scene.add(threeMesh);
+			scene.add(threeMeshCurrent);
+
+			guiFields["Reset"]();
+
+			instrElement0 = document.getElementById("instr0");
+			instrElement0.textContent = " ";
+			instrElement1 = document.getElementById("instr1");
+			instrElement1.textContent = " ";
+			instrElement2 = document.getElementById("instr2");
+			instrElement2.textContent = " ";
+			instrElement3 = document.getElementById("instr3");
+			instrElement3.textContent = "Ready to knit?";
+			instrElement4 = document.getElementById("instr4");
+			instrElement4.textContent = " ";
+			instrElement5 = document.getElementById("instr5");
+			instrElement5.textContent = " ";
+			instrElement6 = document.getElementById("instr6");
+			instrElement6.textContent = " ";
+		} else {
+			alert("Unable to build halfedge mesh");
+		}
+	}
+
+	function initThreeMesh() {
+
+		faceIdPrefixsum = new Uint32Array(knitting_order.length);
+		let len = 0;
+		for (let fi of knitting_order[0]) {
+			let f = mesh.faces[fi]
+			len += (f.degree() - 2) * 3;
+		}
+
+		faceIdPrefixsum[0] = len;
+
+		for (let i = 1; i < knitting_order.length; i++)
+		{
+			len = 0;
+			for (let fi of knitting_order[i]) {
+				let f = mesh.faces[fi]
+				len += (f.degree() - 2) * 3;
+			}
+			faceIdPrefixsum[i] = faceIdPrefixsum[i-1] + len;
+		}
+
+		// create geometry object
+		threeGeometry = new THREE.BufferGeometry();
+		threeGeometryCurrent = new THREE.BufferGeometry();
+
+		// fill position, normal and color buffers
+		let V = 0;
+		for (let faceList of knitting_order)
+		{
+			for (let fi of faceList) {
+				let f = mesh.faces[fi]
+				V += f.degree();
+			}
+		}
+
+		positions = new Float32Array(V * 3);
+		normals = new Float32Array(V * 3);
+		colors = new Float32Array(V * 3);
+		colorsCurrent = new Float32Array(V * 3);
+		V = 0;
+		for (let faceList of knitting_order)
+		{
+			for (let fi of faceList)
+			{
+				let f = mesh.faces[fi]
+				let degree = f.degree();
+				let halfedge = f.adjacentHalfedges()._halfedge;
+				let normal = geometry.faceNormal(f);
+				for (let i = 0; i < degree; i++) {
+					positions[V * 3 + 0] = geometry.positions[halfedge.vertex.index].x;
+					positions[V * 3 + 1] = geometry.positions[halfedge.vertex.index].y;
+					positions[V * 3 + 2] = geometry.positions[halfedge.vertex.index].z;
+					normals[V * 3 + 0] = normal.x;
+					normals[V * 3 + 1] = normal.y;
+					normals[V * 3 + 2] = normal.z;
+					if (types[fi] == 0) {
+						colors[V * 3 + 0] = GREY.x;
+						colors[V * 3 + 1] = GREY.y;
+						colors[V * 3 + 2] = GREY.z;
+					}
+					else if (types[fi] == 1) {
+						colors[V * 3 + 0] = GREEN.x;
+						colors[V * 3 + 1] = GREEN.y;
+						colors[V * 3 + 2] = GREEN.z;
+					}
+					else if (types[fi] == 2) {
+						colors[V * 3 + 0] = BLUE.x;
+						colors[V * 3 + 1] = BLUE.y;
+						colors[V * 3 + 2] = BLUE.z;
+					}
+					else if (types[fi] == 3) {
+						colors[V * 3 + 0] = YELLOW.x;
+						colors[V * 3 + 1] = YELLOW.y;
+						colors[V * 3 + 2] = YELLOW.z;
+					}
+					else if (types[fi] == 4) {
+						colors[V * 3 + 0] = RED.x;
+						colors[V * 3 + 1] = RED.y;
+						colors[V * 3 + 2] = RED.z;
+					}
+					else if (types[fi] == 5) {
+						colors[V * 3 + 0] = DARKGREY.x;
+						colors[V * 3 + 1] = DARKGREY.y;
+						colors[V * 3 + 2] = DARKGREY.z;
+					}
+					else
+					{
+						colors[V * 3 + 0] = 0;
+						colors[V * 3 + 1] = 0;
+						colors[V * 3 + 2] = 0;
+					}
+
+					colorsCurrent[V * 3 + 0] = DARKRED.x;
+					colorsCurrent[V * 3 + 1] = DARKRED.y;
+					colorsCurrent[V * 3 + 2] = DARKRED.z;
+
+					halfedge = halfedge.next;
+					V++;
+				}
+			}
+		}
+
+		// fill index buffer
+		let totalCount = 0;
+		for (let faceList of knitting_order)
+		{
+			for (let fi of faceList) {
+				let f = mesh.faces[fi]
+				totalCount += (f.degree() - 2) * 3;
+			}
+		}
+		indices = new Uint32Array(totalCount);
+		indicesCurrent = indices.slice(0, 0);
+		totalCount = 0;
+		V = 0;
+		for (let faceList of knitting_order)
+		{
+			for (let fi of faceList) {
+				let f = mesh.faces[fi]
+				let degree = f.degree();
+				for (let i = 1; i < degree - 1; i++) {
+					indices[totalCount++] = V;
+					indices[totalCount++] = V + i;
+					indices[totalCount++] = V + i + 1;
+				}
+				V += degree;
+			}
+		}
+
+		// set geometry
+		threeGeometry.setIndex(new THREE.BufferAttribute(indices, 1));
+		threeGeometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+		threeGeometry.addAttribute("normal", new THREE.BufferAttribute(normals, 3));
+		threeGeometry.addAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+		threeGeometryCurrent.setIndex(new THREE.BufferAttribute(indicesCurrent, 1));
+		threeGeometryCurrent.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+		threeGeometryCurrent.addAttribute("normal", new THREE.BufferAttribute(normals, 3));
+		threeGeometryCurrent.addAttribute("color", new THREE.BufferAttribute(colorsCurrent, 3));
+
+		// create material
+		threeMaterial = new THREE.MeshPhongMaterial({
+			vertexColors: THREE.VertexColors,
+			polygonOffset: true,
+			polygonOffsetFactor: 1,
+			polygonOffsetUnits: 1,
+			side: THREE.DoubleSide
+		});
+
+		// create wireframe
+		let totalEdgeCount = 0;
+		for (let f of mesh.faces) {
+			totalEdgeCount += f.degree();
+		}
+
+		let edgePositions = new Float32Array(totalEdgeCount * 2 * 3);
+		totalEdgeCount = 0;
+		for (let f of mesh.faces) {
+			let degree = f.degree();
+			let halfedge = f.adjacentHalfedges()._halfedge;
+			for (let i = 0; i < degree; i++) {
+				edgePositions[totalEdgeCount * 3 + 0] = geometry.positions[halfedge.vertex.index].x;
+				edgePositions[totalEdgeCount * 3 + 1] = geometry.positions[halfedge.vertex.index].y;
+				edgePositions[totalEdgeCount * 3 + 2] = geometry.positions[halfedge.vertex.index].z;
+				totalEdgeCount++;
+				halfedge = halfedge.next;
+				edgePositions[totalEdgeCount * 3 + 0] = geometry.positions[halfedge.vertex.index].x;
+				edgePositions[totalEdgeCount * 3 + 1] = geometry.positions[halfedge.vertex.index].y;
+				edgePositions[totalEdgeCount * 3 + 2] = geometry.positions[halfedge.vertex.index].z;
+				totalEdgeCount++;
+			}
+		}
+
+		let frameGeometry = new THREE.BufferGeometry();
+		frameGeometry.addAttribute('position', new THREE.BufferAttribute(edgePositions, 3));
+		const material = new THREE.LineBasicMaterial({
+			color: 0x000000,
+			linewidth: 0.75,
+			opacity: 0.2,
+			transparent: true
+		});
+		wireframe = new THREE.LineSegments(frameGeometry, material);
+
+		// create mesh
+		threeMesh = new THREE.Mesh(threeGeometry, threeMaterial);
+		threeMeshCurrent = new THREE.Mesh(threeGeometryCurrent, threeMaterial);
+
+		// toggle wireframe
+		toggleWireframe(showWireframe);
+	}
+
+	function initControls() {
+		controls = new THREE.TrackballControls(camera, renderer.domElement);
+		controls.rotateSpeed = 5.0;
+	}
+
+	function addEventListeners() {
+		window.addEventListener("click", onMouseClick, false);
+		window.addEventListener("resize", onWindowResize, false);
+		window.addEventListener("keydown", onKeyDown, false);
+	}
+
+	function onMouseClick(event) {
+		if (event.clientX >= 0 && event.clientX <= window.innerWidth &&
+				event.clientY >= 0 && event.clientY <= window.innerHeight) {
+			shiftClick = event.shiftKey;
+		}
+	}
+
+	function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		controls.handleResize();
+		render();
+	}
+
+	function onKeyDown(event) {
+		var keyCode = event.which;
+		if (keyCode == 78)
+		{
+			if (currentInstId == 0) {
+				let currentIndicesCurrent = indices.slice(0, faceIdPrefixsum[currentInstId]);
+				threeGeometryCurrent.setIndex(new THREE.BufferAttribute(currentIndicesCurrent, 1));
+
+				let currentIndices = indices.slice(0, 0);
+				threeGeometry.setIndex(new THREE.BufferAttribute(currentIndices, 1));
+			}
+			else if (currentInstId > 0) {
+				let currentIndicesCurrent = indices.slice(faceIdPrefixsum[currentInstId - 1], faceIdPrefixsum[currentInstId]);
+				threeGeometryCurrent.setIndex(new THREE.BufferAttribute(currentIndicesCurrent, 1));
+
+				let currentIndices = indices.slice(0, faceIdPrefixsum[currentInstId - 1]);
+				threeGeometry.setIndex(new THREE.BufferAttribute(currentIndices, 1));
+			}
+
+			let vi = faceIdPrefixsum[currentInstId];
+			let px = positions[vi * 3 + 0];
+			let py = positions[vi * 3 + 1];
+			let pz = positions[vi * 3 + 2];
+			//threeGeometry.rotateX(90);
+			//threeGeometryCurrent.rotateX(90);
+			//wireframe.rotateX(90);
+			//console.log(threeGeometry);
+			//camera.position.set(px * 5, py * 5, pz * 5);
+			//camera.lookAt(new THREE.Vector3(px, py, pz));
+			//camera.updateProjectionMatrix();
+
+			if (currentInstId > 2)
+				instrElement6.textContent = instructions[currentInstId - 3];
+			else
+				instrElement6.textContent = " ";
+			if (currentInstId > 1)
+				instrElement5.textContent = instructions[currentInstId - 2];
+			else
+				instrElement5.textContent = " ";
+			if (currentInstId > 0)
+				instrElement4.textContent = instructions[currentInstId - 1];
+			else
+				instrElement4.textContent = " ";
+			instrElement3.textContent = instructions[currentInstId - 0];
+			if (currentInstId < faceIdPrefixsum.length - 2)
+				instrElement2.textContent = instructions[currentInstId + 1];
+			else
+				instrElement2.textContent = " ";
+			if (currentInstId < faceIdPrefixsum.length - 3)
+				instrElement1.textContent = instructions[currentInstId + 2];
+			else
+				instrElement1.textContent = " ";
+			if (currentInstId < faceIdPrefixsum.length - 4)
+				instrElement0.textContent = instructions[currentInstId + 3];
+			else
+				instrElement0.textContent = " ";
+
+			stepListener.object.Step = currentInstId;
+			stepListener.updateDisplay();
+
+			currentInstId++;
+		}
+	}
+
+	function animate() {
+		requestAnimationFrame(animate);
+		controls.update();
+		render();
+	}
+
+	function render() {
+		renderer.render(scene, camera);
+	}
+</script>
+</body>
+
+</html>
