@@ -13,7 +13,7 @@ body {
 
 #title {
 	position: absolute;
-	top: 10px;
+	bottom: 30px;
 	left: 1%;
 	width: 100%;
 }
@@ -36,7 +36,7 @@ body {
 
 #instr0 {
 	position: absolute;
-	bottom: 10px;
+	bottom: 30px;
 	right: 10px;
 	width: 30%;
 	font-size: 150%;
@@ -46,7 +46,7 @@ body {
 }
 #instr1 {
 	position: absolute;
-	bottom: 40px;
+	bottom: 60px;
 	right: 20px;
 	width: 30%;
 	font-size: 150%;
@@ -56,7 +56,7 @@ body {
 }
 #instr2 {
 	position: absolute;
-	bottom: 70px;
+	bottom: 90px;
 	right: 30px;
 	width: 30%;
 	font-size: 150%;
@@ -66,7 +66,7 @@ body {
 }
 #instr3 {
 	position: absolute;
-	bottom: 100px;
+	bottom: 120px;
 	right: 50px;
 	width: 30%;
 	font-size: 150%;
@@ -76,7 +76,7 @@ body {
 }
 #instr4 {
 	position: absolute;
-	bottom: 130px;
+	bottom: 150px;
 	right: 30px;
 	width: 30%;
 	font-size: 150%;
@@ -86,7 +86,7 @@ body {
 }
 #instr5 {
 	position: absolute;
-	bottom: 160px;
+	bottom: 180px;
 	right: 20px;
 	width: 30%;
 	font-size: 150%;
@@ -96,7 +96,7 @@ body {
 }
 #instr6 {
 	position: absolute;
-	bottom: 190px;
+	bottom: 210px;
 	right: 10px;
 	width: 30%;
 	font-size: 150%;
