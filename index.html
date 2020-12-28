@@ -122,7 +122,8 @@
 
 		},
 		"Next": function() {
-
+			if (currentInstId > faceIdPrefixsum.length)
+				return;
 			if (currentInstId == 0) {
 				let currentIndicesCurrent = indices.slice(0, faceIdPrefixsum[currentInstId]);
 				threeGeometryCurrent.setIndex(new THREE.BufferAttribute(currentIndicesCurrent, 1));
