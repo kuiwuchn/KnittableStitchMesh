@@ -11,6 +11,13 @@ body {
 	text-align: center;
 }
 
+#title {
+	position: absolute;
+	top: 10px;
+	left: 1%;
+	width: 100%;
+}
+
 #copyright {
 	position: absolute;
 	bottom: 10px;
