@@ -66,6 +66,8 @@
 <script src="input/shape_C_order.js"></script>
 <script src="input/shape_G.js"></script>
 <script src="input/shape_G_order.js"></script>
+<script src="input/shape_I.js"></script>
+<script src="input/shape_I_order.js"></script>
 
 
 <script>
@@ -123,6 +125,7 @@
 		"Shape A" : shape_A,
 		"Shape C" : shape_C,
 		"Shape G" : shape_G,
+		"Shape I" : shape_I,
 	};
 
 	let order_data = {
@@ -130,6 +133,7 @@
 		"Shape A" : shape_A_knitting_order,
 		"Shape C" : shape_C_knitting_order,
 		"Shape G" : shape_G_knitting_order,
+		"Shape I" : shape_I_knitting_order,
 	};
 
 	let instr_data = {
@@ -137,6 +141,7 @@
 		"Shape A" : shape_A_instructions,
 		"Shape C" : shape_C_instructions,
 		"Shape G" : shape_G_instructions,
+		"Shape I" : shape_I_instructions,
 	};
 
 	//const ORANGE = new Vector(1.0, 0.5, 0.0);
@@ -202,7 +207,7 @@
 
 	function initGUI() {
 		let gui = new dat.GUI( { fontSize: 20  } );
-		gui.add(guiFields, "Model", ["Teapot tiny", "Shape A", "Shape C", "Shape G"]).onChange(updateModel).listen();
+		gui.add(guiFields, "Model", ["Teapot tiny", "Shape A", "Shape C", "Shape G", "Shape I"]).onChange(updateModel).listen();
 		knitting_order = teapot_tiny_knitting_order;
 		instructions = teapot_tiny_instructions;
 		stepListener = gui.add(obj, 'Step').min(0).max(instructions.length - 1).step(1);
