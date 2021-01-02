@@ -70,6 +70,10 @@
 <script src="input/shape_I_order.js"></script>
 <script src="input/shape_S.js"></script>
 <script src="input/shape_S_order.js"></script>
+<script src="input/shape_P.js"></script>
+<script src="input/shape_P_order.js"></script>
+<script src="input/shape_R.js"></script>
+<script src="input/shape_R_order.js"></script>
 
 <script>
 	if (!Detector.webgl) Detector.addGetWebGLMessage();
@@ -128,6 +132,8 @@
 		"Shape G" : shape_G,
 		"Shape I" : shape_I,
 		"Shape S" : shape_S,
+		"Shape P" : shape_P,
+		"Shape R" : shape_R,
 	};
 
 	let order_data = {
@@ -137,6 +143,8 @@
 		"Shape G" : shape_G_knitting_order,
 		"Shape I" : shape_I_knitting_order,
 		"Shape S" : shape_S_knitting_order,
+		"Shape P" : shape_P_knitting_order,
+		"Shape R" : shape_R_knitting_order,
 	};
 
 	let instr_data = {
@@ -146,6 +154,8 @@
 		"Shape G" : shape_G_instructions,
 		"Shape I" : shape_I_instructions,
 		"Shape S" : shape_S_instructions,
+		"Shape P" : shape_P_instructions,
+		"Shape R" : shape_R_instructions,
 	};
 
 	//const ORANGE = new Vector(1.0, 0.5, 0.0);
@@ -156,6 +166,10 @@
 	const RED = new Vector(0.5, 0.1, 0.1);
 	const DARKGREY = new Vector(0.344, 0.344, 0.344);
 	const DARKRED = new Vector(1.0, 0.1, 0.1);
+	const DARKBLUE = new Vector(0.3, 0.3, 1.0);
+	const MAGENTA = new Vector(1.0, 0.2, 1.0);
+	const ORANGE = new Vector(1.0, 0.7, 0.1);
+	const CYAN = new Vector(0.1, 0.8, 0.7);
 
 	let guiFields = {
 		"Load Mesh": function() {
@@ -397,6 +411,26 @@
 						colors[V * 3 + 0] = DARKGREY.x;
 						colors[V * 3 + 1] = DARKGREY.y;
 						colors[V * 3 + 2] = DARKGREY.z;
+					}
+					else if (types[fi] == 6) {
+						colors[V * 3 + 0] = CYAN.x;
+						colors[V * 3 + 1] = CYAN.y;
+						colors[V * 3 + 2] = CYAN.z;
+					}
+					else if (types[fi] == 7) {
+						colors[V * 3 + 0] = ORANGE.x;
+						colors[V * 3 + 1] = ORANGE.y;
+						colors[V * 3 + 2] = ORANGE.z;
+					}
+					else if (types[fi] == 8) {
+						colors[V * 3 + 0] = MAGENTA.x;
+						colors[V * 3 + 1] = MAGENTA.y;
+						colors[V * 3 + 2] = MAGENTA.z;
+					}
+					else if (types[fi] == 9) {
+						colors[V * 3 + 0] = DARKBLUE.x;
+						colors[V * 3 + 1] = DARKBLUE.y;
+						colors[V * 3 + 2] = DARKBLUE.z;
 					}
 					else
 					{
