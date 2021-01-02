@@ -18,7 +18,7 @@
 </div>
 
 <div id="info">
-	<h1>Utah Teapot (tiny)</h1>
+	<h1 id="model_name">Teapot tiny</h1>
 	<div>Press (N) or (Next) button to start the demo / next step</div>
 	<div>Press (B) or (Back) button to back to the previous step</div>
 	<div>Drag (Step) to the certain step</div>
@@ -205,6 +205,9 @@
 		initMesh(mesh_data[model_id]);
 		stepListener.max(instructions.length - 2);
 		stepListener.setValue(instructions.length);
+
+		let modelName = document.getElementById("model_name");
+		modelName.textContent = model_id;
 	}
 
 	window.onload = function() {
@@ -259,7 +262,6 @@
 			scene.remove(threeMesh);
 			scene.remove(threeMeshCurrent);
 			memoryManager.deleteExcept([]);
-			delta = undefined;
 
 			// create geometry object
 			geometry = new Geometry(mesh, polygonSoup["v"]);
