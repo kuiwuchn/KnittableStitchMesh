@@ -948,6 +948,5 @@ shape_C_instructions = [
         "# 469:  1 2-Dec Purl Marker ",
         "# 470:  3 2-Dec  Knit       ",
         "# 471:  1 Bind-off Marker   ",
-        "# 472:  3 Bind-off          ",
-        "# 473: Finish!              "
+        "# 472:  3 Bind-off          "
 ]

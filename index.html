@@ -64,6 +64,8 @@
 <script src="input/shape_A_order.js"></script>
 <script src="input/shape_C.js"></script>
 <script src="input/shape_C_order.js"></script>
+<script src="input/shape_G.js"></script>
+<script src="input/shape_G_order.js"></script>
 
 
 <script>
@@ -120,18 +122,21 @@
 		"Teapot tiny" : teapot_tiny,
 		"Shape A" : shape_A,
 		"Shape C" : shape_C,
+		"Shape G" : shape_G,
 	};
 
 	let order_data = {
 		"Teapot tiny" : teapot_tiny_knitting_order,
 		"Shape A" : shape_A_knitting_order,
 		"Shape C" : shape_C_knitting_order,
+		"Shape G" : shape_G_knitting_order,
 	};
 
 	let instr_data = {
 		"Teapot tiny" : teapot_tiny_instructions,
 		"Shape A" : shape_A_instructions,
 		"Shape C" : shape_C_instructions,
+		"Shape G" : shape_G_instructions,
 	};
 
 	//const ORANGE = new Vector(1.0, 0.5, 0.0);
@@ -197,10 +202,10 @@
 
 	function initGUI() {
 		let gui = new dat.GUI( { fontSize: 20  } );
-		gui.add(guiFields, "Model", ["Teapot tiny", "Shape A", "Shape C"]).onChange(updateModel).listen();
+		gui.add(guiFields, "Model", ["Teapot tiny", "Shape A", "Shape C", "Shape G"]).onChange(updateModel).listen();
 		knitting_order = teapot_tiny_knitting_order;
 		instructions = teapot_tiny_instructions;
-		stepListener = gui.add(obj, 'Step').min(0).max(instructions.length - 2).step(1);
+		stepListener = gui.add(obj, 'Step').min(0).max(instructions.length - 1).step(1);
 		gui.add(guiFields, "Next");
 		gui.add(guiFields, "Back");
 		gui.add(guiFields, "Show Wireframe").onChange(toggleWireframe).listen();
@@ -210,7 +215,7 @@
 		knitting_order = order_data[model_id];
 		instructions = instr_data[model_id];
 		initMesh(mesh_data[model_id]);
-		stepListener.max(instructions.length - 2);
+		stepListener.max(instructions.length - 1);
 		stepListener.setValue(instructions.length);
 
 		let modelName = document.getElementById("model_name");
