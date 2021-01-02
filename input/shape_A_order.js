@@ -449,7 +449,6 @@ let shape_A_knitting_order =
         [2181],
         [2819],
         [2155, 2158, 2157, 2156],
-        [2210, 2213, 2212, 2211],
     ]
 
 shape_A_instructions = [
