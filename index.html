@@ -68,7 +68,8 @@
 <script src="input/shape_G_order.js"></script>
 <script src="input/shape_I.js"></script>
 <script src="input/shape_I_order.js"></script>
-
+<script src="input/shape_S.js"></script>
+<script src="input/shape_S_order.js"></script>
 
 <script>
 	if (!Detector.webgl) Detector.addGetWebGLMessage();
@@ -126,6 +127,7 @@
 		"Shape C" : shape_C,
 		"Shape G" : shape_G,
 		"Shape I" : shape_I,
+		"Shape S" : shape_S,
 	};
 
 	let order_data = {
@@ -134,6 +136,7 @@
 		"Shape C" : shape_C_knitting_order,
 		"Shape G" : shape_G_knitting_order,
 		"Shape I" : shape_I_knitting_order,
+		"Shape S" : shape_S_knitting_order,
 	};
 
 	let instr_data = {
@@ -142,6 +145,7 @@
 		"Shape C" : shape_C_instructions,
 		"Shape G" : shape_G_instructions,
 		"Shape I" : shape_I_instructions,
+		"Shape S" : shape_S_instructions,
 	};
 
 	//const ORANGE = new Vector(1.0, 0.5, 0.0);
@@ -207,7 +211,7 @@
 
 	function initGUI() {
 		let gui = new dat.GUI( { fontSize: 20  } );
-		gui.add(guiFields, "Model", ["Teapot tiny", "Shape A", "Shape C", "Shape G", "Shape I"]).onChange(updateModel).listen();
+		gui.add(guiFields, "Model", ["Teapot tiny",  "Shape G", "Shape R",  "Shape A",  "Shape P",  "Shape H", "Shape I", "Shape C", "Shape S"]).onChange(updateModel).listen();
 		knitting_order = teapot_tiny_knitting_order;
 		instructions = teapot_tiny_instructions;
 		stepListener = gui.add(obj, 'Step').min(0).max(instructions.length - 1).step(1);
