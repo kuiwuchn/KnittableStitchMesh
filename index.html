@@ -58,6 +58,8 @@
 <script src="ksm-core/geometry.js"></script>
 <script src="input/teapot_tiny.js"></script>
 <script src="input/teapot_tiny_order.js"></script>
+<script src="input/shape_A.js"></script>
+<script src="input/shape_A_order.js"></script>
 <script src="ksm-core/meshio.js"></script>
 
 <script>
@@ -106,6 +108,24 @@
 	let instrElement4 = undefined;
 	let instrElement5 = undefined;
 	let instrElement6 = undefined;
+
+	let knitting_order = undefined;
+	let instructions = undefined;
+
+	let mesh_data = {
+		"Teapot tiny" : teapot_tiny,
+		"Shape A" : shape_A,
+	};
+
+	let order_data = {
+		"Teapot tiny" : teapot_tiny_knitting_order,
+		"Shape A" : shape_A_knitting_order,
+	};
+
+	let instr_data = {
+		"Teapot tiny" : teapot_tiny_instructions,
+		"Shape A" : shape_A_instructions,
+	};
 
 	//const ORANGE = new Vector(1.0, 0.5, 0.0);
 	const GREY = new Vector(0.688, 0.688, 0.688);
@@ -170,16 +190,21 @@
 
 	function initGUI() {
 		let gui = new dat.GUI( { fontSize: 20  } );
-		console.log(gui);
-		gui.add(guiFields, "Model", ["Teapot tiny"]).onChange(updateModel).listen();
+		gui.add(guiFields, "Model", ["Teapot tiny", "Shape A"]).onChange(updateModel).listen();
+		knitting_order = teapot_tiny_knitting_order;
+		instructions = teapot_tiny_instructions;
 		stepListener = gui.add(obj, 'Step').min(0).max(instructions.length - 2).step(1);
 		gui.add(guiFields, "Next");
 		gui.add(guiFields, "Back");
 		gui.add(guiFields, "Show Wireframe").onChange(toggleWireframe).listen();
 	}
 
-	function updateModel() {
-
+	function updateModel(model_id) {
+		knitting_order = order_data[model_id];
+		instructions = instr_data[model_id];
+		initMesh(mesh_data[model_id]);
+		stepListener.max(instructions.length - 2);
+		stepListener.setValue(instructions.length);
 	}
 
 	window.onload = function() {
@@ -190,7 +215,6 @@
 			function(newStep) {
 				currentInstId = newStep;
 				updateInstAndMesh();
-				currentInstId++;
 			});
 
 	function toggleWireframe(checked) {
