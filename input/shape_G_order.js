@@ -747,7 +747,7 @@ shape_G_instructions = [
     "# 145:  27  Knit                          ",
     "# 146:  1  Marker                         ",
     "# 147:  7  Knit                           ",
-    "# 148:  6 Split                           ",
+    "# 148:  6 Split (skip)                     ",
     "# 149:  Switch to yarn 1, 10  Knit        ",
     "# 150:  6 Split, Use third yarn to cast-on",
     "# 151:  1  Knit                           ",
