@@ -398,7 +398,7 @@ shape_H_instructions = [
         "# 81:  5  Knit                             ",
         "# 82:  1  Marker                           ",
         "# 83:  11  Knit                            ",
-        "# 84:  6 Split                             ",
+        "# 84:  6 Split (skip)                      ",
         "# 85: Switch to yarn 2, 2  Knit            ",
         "# 86:  8 Split Socket                      ",
         "# 87:  6 Split, Use third yarn to cast-on  ",

@@ -244,7 +244,7 @@
 		instructions = instr_data[model_id];
 		initMesh(mesh_data[model_id]);
 		stepListener.max(instructions.length - 1);
-		stepListener.setValue(instructions.length);
+		stepListener.setValue(0);
 
 		let modelName = document.getElementById("model_name");
 		modelName.textContent = model_id;

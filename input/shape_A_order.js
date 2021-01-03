@@ -556,7 +556,7 @@ shape_A_instructions = [
     "# 100:  9  Knit                            ",
     "# 101:  1  Marker                          ",
     "# 102:  8  Knit                            ",
-    "# 103:  7 Split                            ",
+    "# 103:  7 Split (skip)                     ",
     "# 104:  Switch to yarn 1, 8  Knit          ",
     "# 105:  7 Split, Use third yarn to cast-on ",
     "# 106:  8  Knit                            ",
